@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { CreditCard } from '@/lib/types'
+import { fetchDataFromEdgeFunction } from '@/lib/supabase'
 
 interface CardsTabProps {
   month: number
@@ -19,7 +20,6 @@ export default function CardsTab({ month: _month, year: _year }: CardsTabProps) 
   const loadCards = async () => {
     try {
       setLoading(true)
-      const { fetchDataFromEdgeFunction } = await import('@/lib/supabase')
       const data = await fetchDataFromEdgeFunction()
 
       const activeCards = data.creditCards?.filter((c: any) => c.status === 'active') || []

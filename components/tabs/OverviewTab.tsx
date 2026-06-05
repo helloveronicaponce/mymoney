@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Debt, Investment } from '@/lib/types'
+import { fetchDataFromEdgeFunction } from '@/lib/supabase'
 
 interface OverviewTabProps {
   month: number
@@ -20,7 +21,6 @@ export default function OverviewTab({ month: _month, year: _year }: OverviewTabP
   const loadData = async () => {
     try {
       setLoading(true)
-      const { fetchDataFromEdgeFunction } = await import('@/lib/supabase')
       const data = await fetchDataFromEdgeFunction()
 
       setDebts(data.debts || [])

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Transaction } from '@/lib/types'
+import { fetchDataFromEdgeFunction } from '@/lib/supabase'
 
 interface LaunchesTabProps {
   month: number
@@ -25,8 +26,6 @@ export default function LaunchesTab({ month, year }: LaunchesTabProps) {
     try {
       setLoading(true)
 
-      // Import Edge Function fetcher
-      const { fetchDataFromEdgeFunction } = await import('@/lib/supabase')
       const data = await fetchDataFromEdgeFunction()
 
       // Filter transactions by month/year
