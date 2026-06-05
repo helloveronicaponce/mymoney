@@ -15,10 +15,12 @@ export const EDGE_FUNCTION_URL = 'https://qwlegnebejakwwuntyrd.supabase.co/funct
 // Fetch data from Edge Function
 export async function fetchDataFromEdgeFunction() {
   try {
+    // Try with authorization header
     const response = await fetch(EDGE_FUNCTION_URL, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseAnonKey}`,
       },
     })
 
