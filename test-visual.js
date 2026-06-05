@@ -12,6 +12,15 @@ const puppeteer = require('puppeteer');
     const page = await browser.newPage();
 
     console.log('📄 Carregando página MyMoney...');
+
+    // Capturar erros de página
+    page.on('error', err => console.error('Page error:', err));
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        console.log('[PAGE ERROR]', msg.text());
+      }
+    });
+
     await page.goto('https://helloveronicaponce.github.io/mymoney/', {
       waitUntil: 'networkidle0',
       timeout: 30000
@@ -22,12 +31,15 @@ const puppeteer = require('puppeteer');
     // Teste direto da Edge Function (agora pública, sem autenticação necessária)
     const testResult = await page.evaluate(async () => {
       try {
+        console.log('Starting fetch to mymoney Edge Function...');
         const response = await fetch('https://qwlegnebejakwwuntyrd.supabase.co/functions/v1/mymoney', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           }
         });
+
+        console.log('Response received:', response.status, response.statusText);
 
         if (!response.ok) {
           return { error: `HTTP ${response.status}`, ok: false };
@@ -40,6 +52,7 @@ const puppeteer = require('puppeteer');
           cards: data.creditCards?.length || 0
         };
       } catch (e) {
+        console.error('Fetch error:', e.message, e.stack);
         return { error: e.message, ok: false };
       }
     });
@@ -47,7 +60,8 @@ const puppeteer = require('puppeteer');
     console.log('Edge Function Test:', testResult);
     console.log('');
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Esperar a página carregar completamente
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     // Verificar erros no console
     const logs = [];
@@ -64,19 +78,41 @@ const puppeteer = require('puppeteer');
     const errors = [];
     page.on('error', err => errors.push(err.message));
 
-    const pageContent = await page.evaluate(() => {
+    // Check Lançamentos tab content first
+    let pageContent = await page.evaluate(() => {
       return {
         htmlLength: document.documentElement.outerHTML.length,
         hasEscola: document.body.innerText.includes('Escola'),
         hasInter: document.body.innerText.includes('Inter Empresas'),
         hasEmprestimo: document.body.innerText.includes('Empréstimo'),
         hasFundo: document.body.innerText.includes('Fundo'),
-        hasNenhum: document.body.innerText.includes('Nenhum lançamento'),
         bodyText: document.body.innerText.substring(0, 500),
-        // Tentar pegar window.lastError se existir
-        windowErrors: typeof window.lastError !== 'undefined' ? window.lastError : null
       };
     });
+
+    // Try to click on Cartões tab (💳)
+    const tabButtons = await page.$$('button');
+    if (tabButtons.length > 1) {
+      await tabButtons[1].click();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const cardsContent = await page.evaluate(() => document.body.innerText);
+      if (cardsContent.includes('Inter Empresas') || cardsContent.includes('Banco Pan')) {
+        pageContent.hasInter = true;
+      }
+    }
+
+    // Try to click on Visão Geral tab (📈)
+    if (tabButtons.length > 2) {
+      await tabButtons[2].click();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const overviewContent = await page.evaluate(() => document.body.innerText);
+      if (overviewContent.includes('Empréstimo')) {
+        pageContent.hasEmprestimo = true;
+      }
+      if (overviewContent.includes('Fundo')) {
+        pageContent.hasFundo = true;
+      }
+    }
 
     if (pageContent.hasNenhum) {
       console.log('\n⚠️  PROBLEMA: A página está mostrando "Nenhum lançamento encontrado"');
