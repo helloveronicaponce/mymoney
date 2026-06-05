@@ -9,7 +9,7 @@ interface CardsTabProps {
   year: number
 }
 
-export default function CardsTab({ month, year }: CardsTabProps) {
+export default function CardsTab({ month: _month, year: _year }: CardsTabProps) {
   const [cards, setCards] = useState<CreditCard[]>([])
   const [loading, setLoading] = useState(true)
 

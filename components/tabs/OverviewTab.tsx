@@ -9,7 +9,7 @@ interface OverviewTabProps {
   year: number
 }
 
-export default function OverviewTab({ month, year }: OverviewTabProps) {
+export default function OverviewTab({ month: _month, year: _year }: OverviewTabProps) {
   const [debts, setDebts] = useState<Debt[]>([])
   const [investments, setInvestments] = useState<Investment[]>([])
   const [loading, setLoading] = useState(true)
