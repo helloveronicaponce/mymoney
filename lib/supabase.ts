@@ -15,11 +15,11 @@ export const EDGE_FUNCTION_URL = 'https://qwlegnebejakwwuntyrd.supabase.co/funct
 // Fetch data from Edge Function
 export async function fetchDataFromEdgeFunction() {
   try {
+    // Edge Function is now public (verify_jwt: false), no auth header needed
     const response = await fetch(EDGE_FUNCTION_URL, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`,
       },
     })
 
