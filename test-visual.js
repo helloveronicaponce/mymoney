@@ -19,14 +19,13 @@ const puppeteer = require('puppeteer');
 
     console.log('⏳ Testando Edge Function no navegador...');
 
-    // Teste direto da Edge Function
+    // Teste direto da Edge Function (agora pública, sem autenticação necessária)
     const testResult = await page.evaluate(async () => {
       try {
         const response = await fetch('https://qwlegnebejakwwuntyrd.supabase.co/functions/v1/mymoney', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3bGVnbmViZWpha3d3dW50eXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2OTUxODYsImV4cCI6MjA5MTI3MTE4Nn0.lkYjF5xXwS_XW8Wi-p0YBBOxY7Bjs_HDw7PIWDTcPYQ',
           }
         });
 
