@@ -8,3 +8,27 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Edge Function URL
+export const EDGE_FUNCTION_URL = 'https://qwlegnebejakwwuntyrd.supabase.co/functions/v1/mymoney'
+
+// Fetch data from Edge Function
+export async function fetchDataFromEdgeFunction() {
+  try {
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Erro ao buscar dados da Edge Function:', error)
+    throw error
+  }
+}

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Debt, Investment } from '@/lib/types'
 
 interface OverviewTabProps {
@@ -21,23 +20,11 @@ export default function OverviewTab({ month: _month, year: _year }: OverviewTabP
   const loadData = async () => {
     try {
       setLoading(true)
+      const { fetchDataFromEdgeFunction } = await import('@/lib/supabase')
+      const data = await fetchDataFromEdgeFunction()
 
-      // Load debts
-      const { data: debtsData, error: debtsError } = await supabase
-        .from('debts')
-        .select('*')
-
-      if (debtsError) throw debtsError
-      setDebts(debtsData || [])
-
-      // Load investments
-      const { data: investmentsData, error: investmentsError } = await supabase
-        .from('investments')
-        .select('*')
-        .eq('status', 'active')
-
-      if (investmentsError) throw investmentsError
-      setInvestments(investmentsData || [])
+      setDebts(data.debts || [])
+      setInvestments(data.investments?.filter((i: any) => i.status === 'active') || [])
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
     } finally {

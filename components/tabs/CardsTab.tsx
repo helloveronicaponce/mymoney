@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { CreditCard } from '@/lib/types'
 
 interface CardsTabProps {
@@ -20,13 +19,11 @@ export default function CardsTab({ month: _month, year: _year }: CardsTabProps) 
   const loadCards = async () => {
     try {
       setLoading(true)
-      const { data, error } = await supabase
-        .from('credit_cards')
-        .select('*')
-        .eq('status', 'active')
+      const { fetchDataFromEdgeFunction } = await import('@/lib/supabase')
+      const data = await fetchDataFromEdgeFunction()
 
-      if (error) throw error
-      setCards(data || [])
+      const activeCards = data.creditCards?.filter((c: any) => c.status === 'active') || []
+      setCards(activeCards)
     } catch (error) {
       console.error('Erro ao carregar cartões:', error)
     } finally {

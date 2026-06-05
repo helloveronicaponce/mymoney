@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Transaction } from '@/lib/types'
 
 interface LaunchesTabProps {
@@ -25,16 +24,13 @@ export default function LaunchesTab({ month, year }: LaunchesTabProps) {
   const loadTransactions = async () => {
     try {
       setLoading(true)
-      // Fetch transactions for the selected month
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .order('due_date', { ascending: true })
 
-      if (error) throw error
+      // Import Edge Function fetcher
+      const { fetchDataFromEdgeFunction } = await import('@/lib/supabase')
+      const data = await fetchDataFromEdgeFunction()
 
       // Filter transactions by month/year
-      const filtered = data?.filter(t => {
+      const filtered = data.transactions?.filter((t: any) => {
         const date = new Date(t.due_date)
         return date.getMonth() + 1 === month && date.getFullYear() === year
       }) || []
